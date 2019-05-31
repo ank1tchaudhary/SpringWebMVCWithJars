@@ -7,7 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.apache.catalina.filters.HttpHeaderSecurityFilter;
 import org.springframework.beans.propertyeditors.CustomNumberEditor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.springmvc.model.HelloModel;
 import com.sun.org.apache.xml.internal.dtm.ref.CustomStringPool;
@@ -76,18 +79,47 @@ public class HelloController {
 		return md;
 	}
 	 
-	
+	/*get records using rest api*/
 	@RequestMapping(value="/list/{param}",method=RequestMethod.GET, produces=MediaType.APPLICATION_JSON_VALUE)
 	public @ResponseBody HelloModel list(@PathVariable("param") String param){
 		HelloModel md= new HelloModel(param,"Chaudhary","7830960649");
 		return md;
 	}
-	
+
+	/*update records using rest api*/
 	@ResponseBody
 	@RequestMapping(value="/list/{param}",method=RequestMethod.PUT, consumes=MediaType.APPLICATION_JSON_VALUE)
-	public  ResponseEntity<Boolean> listt(@PathVariable("param") String name,@RequestBody HelloModel model) {
+	public  ResponseEntity<Boolean> update(@PathVariable("param") String name,@RequestBody HelloModel model) {
 		System.out.println("fname is : "+name);
 		System.out.println("updated value is  :"+ model);
+		HttpHeaders header= new HttpHeaders();
+		header.add("Key1", "value1");
+		
+		return new ResponseEntity<Boolean>(true,header,HttpStatus.OK);
+	}
+	
+	/*save record using rest api */
+	@ResponseBody
+	@RequestMapping(value="/list",method=RequestMethod.POST, consumes=MediaType.APPLICATION_JSON_VALUE)
+	public  ResponseEntity<Boolean> save(@RequestBody HelloModel model) {
+		
+		System.out.println("inserted value is  :"+ model);
+		HttpHeaders header= new HttpHeaders();
+		header.add("Location", ServletUriComponentsBuilder.fromCurrentRequest().path("/{param}").buildAndExpand(model.getFname()).toUri().toString());
+		
+		return new ResponseEntity<Boolean>(true,header,HttpStatus.CREATED);
+	}
+	
+	
+	/*delete record using rest api */
+	@ResponseBody
+	@RequestMapping(value="/list/{param}",method=RequestMethod.DELETE)
+	public  ResponseEntity<Boolean> delete(@PathVariable("param") String name) {
+		System.out.println("user to be deleted is : "+name);
+		
+		//HttpHeaders header= new HttpHeaders();
+		//header.add("Location", ServletUriComponentsBuilder.fromCurrentRequest().path("/{param}").buildAndExpand(model.getFname()).toUri().toString());
+		
 		return new ResponseEntity<Boolean>(true,HttpStatus.OK);
 	}
 	
